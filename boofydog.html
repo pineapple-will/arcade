@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boofy Dog — Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --border: #E8E8E4;
+    --border-hover: #D0D0CC;
+    --text-primary: #1A1A1A;
+    --text-secondary: #6B6B6B;
+    --text-tertiary: #9A9A9A;
+    --accent: #2A2A2A;
+    --accent-warm: #C4663A;
+    --accent-warm-light: #FFF4EF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  nav {
+    padding: 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+
+  .nav-logo { width: 36px; height: 36px; }
+
+  .nav-name {
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text-primary); }
+
+  .hero {
+    text-align: center;
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-mascot {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 28px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .hero p {
+    font-size: 17px;
+    color: var(--text-secondary);
+    max-width: 440px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 48px 0 28px;
+  }
+
+  .section-label span {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    white-space: nowrap;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding-bottom: 80px;
+  }
+
+  .game-card {
+    background: var(--surface);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .game-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+    transform: translateY(-3px);
+  }
+
+  .game-thumb {
+    width: 100%;
+    aspect-ratio: 16/10;
+    background: linear-gradient(145deg, #F5F5F2, #EDEDEA);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-thumb-icon { font-size: 44px; opacity: 0.5; }
+
+  .game-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent-warm);
+    background: var(--accent-warm-light);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .game-info { padding: 18px 20px 22px; }
+
+  .game-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 6px;
+  }
+
+  .game-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+
+  .play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 22px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .play-btn:hover { background: #444; transform: scale(1.03); }
+  .play-btn svg { width: 12px; height: 12px; fill: #fff; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px 100px;
+  }
+
+  .empty-state p {
+    color: var(--text-tertiary);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .empty-state .hint {
+    margin-top: 8px;
+    font-size: 13px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 32px 0 40px;
+    border-top: 1px solid var(--border);
+    color: var(--text-tertiary);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 50px 0 40px; }
+    .hero-mascot { width: 90px; height: 90px; }
+    .game-grid { grid-template-columns: 1fr; gap: 16px; }
+    .nav-links { gap: 16px; }
+    .nav-links a { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <nav>
+    <a class="nav-brand" href="#">
+      <svg class="nav-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="110" r="62" fill="#8B6914"/>
+        <circle cx="60" cy="80" r="30" fill="#8B6914"/>
+        <circle cx="140" cy="80" r="30" fill="#8B6914"/>
+        <circle cx="50" cy="110" r="28" fill="#8B6914"/>
+        <circle cx="150" cy="110" r="28" fill="#8B6914"/>
+        <circle cx="65" cy="140" r="24" fill="#8B6914"/>
+        <circle cx="135" cy="140" r="24" fill="#8B6914"/>
+        <circle cx="80" cy="65" r="22" fill="#8B6914"/>
+        <circle cx="120" cy="65" r="22" fill="#8B6914"/>
+        <circle cx="100" cy="58" r="20" fill="#8B6914"/>
+        <circle cx="45" cy="95" r="18" fill="#8B6914"/>
+        <circle cx="155" cy="95" r="18" fill="#8B6914"/>
+        <circle cx="100" cy="108" r="50" fill="#A07828"/>
+        <circle cx="75" cy="88" r="18" fill="#A07828"/>
+        <circle cx="125" cy="88" r="18" fill="#A07828"/>
+        <circle cx="82" cy="105" r="10" fill="#1A1A1A"/>
+        <circle cx="118" cy="105" r="10" fill="#1A1A1A"/>
+        <circle cx="85" cy="102" r="3.5" fill="#FFFFFF"/>
+        <circle cx="121" cy="102" r="3.5" fill="#FFFFFF"/>
+        <ellipse cx="100" cy="118" rx="5" ry="3.5" fill="#5C3D2E"/>
+      </svg>
+      <span class="nav-name">Boofy Dog</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Games</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <svg class="hero-mascot" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="110" r="62" fill="#8B6914"/>
+      <circle cx="60" cy="80" r="30" fill="#8B6914"/>
+      <circle cx="140" cy="80" r="30" fill="#8B6914"/>
+      <circle cx="50" cy="110" r="28" fill="#8B6914"/>
+      <circle cx="150" cy="110" r="28" fill="#8B6914"/>
+      <circle cx="65" cy="140" r="24" fill="#8B6914"/>
+      <circle cx="135" cy="140" r="24" fill="#8B6914"/>
+      <circle cx="80" cy="65" r="22" fill="#8B6914"/>
+      <circle cx="120" cy="65" r="22" fill="#8B6914"/>
+      <circle cx="100" cy="58" r="20" fill="#8B6914"/>
+      <circle cx="45" cy="95" r="18" fill="#8B6914"/>
+      <circle cx="155" cy="95" r="18" fill="#8B6914"/>
+      <circle cx="100" cy="108" r="50" fill="#A07828"/>
+      <circle cx="75" cy="88" r="18" fill="#A07828"/>
+      <circle cx="125" cy="88" r="18" fill="#A07828"/>
+      <circle cx="82" cy="105" r="10" fill="#1A1A1A"/>
+      <circle cx="118" cy="105" r="10" fill="#1A1A1A"/>
+      <circle cx="85" cy="102" r="3.5" fill="#FFFFFF"/>
+      <circle cx="121" cy="102" r="3.5" fill="#FFFFFF"/>
+      <ellipse cx="100" cy="118" rx="5" ry="3.5" fill="#5C3D2E"/>
+    </svg>
+    <h1>Boofy Dog</h1>
+    <p>A small indie studio making games you can play right in your browser. No downloads, no sign-ups.</p>
+  </section>
+
+  <div class="section-label"><span>Games</span></div>
+
+  <div class="empty-state">
+    <p>Games are on their way.</p>
+    <p class="hint">Check back soon — the first title drops any day now.</p>
+  </div>
+
+  <!--
+  =============================================
+  HOW TO ADD A GAME:
+  1. Delete the "empty-state" div above
+  2. Uncomment the "game-grid" div below
+  3. Copy a game-card block for each new game
+  4. Update the href, title, description & tag
+  5. Put each game in: games/your-game/index.html
+  =============================================
+
+  <div class="game-grid">
+
+    <a class="game-card" href="games/your-game/index.html">
+      <div class="game-thumb">
+        <span class="game-tag">Genre</span>
+        <span class="game-thumb-icon">🎮</span>
+      </div>
+      <div class="game-info">
+        <div class="game-title">Game Title</div>
+        <div class="game-desc">A short description of your game goes here.</div>
+        <div class="play-btn">
+          <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+          Play
+        </div>
+      </div>
+    </a>
+
+  </div>
+  -->
+
+</div>
+
+<footer>
+  <div class="container">&copy; 2026 Boofy Dog Studios</div>
+</footer>
+
+</body>
+</html>
