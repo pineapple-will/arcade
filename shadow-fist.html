@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Shadow Fist</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#111;font-family:system-ui,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block;width:100%;height:100%}
+.mc{display:none;position:fixed;bottom:0;left:0;right:0;padding:6px 8px 10px;z-index:20}
+.mcr{display:flex;justify-content:space-between;align-items:flex-end}
+.mcd,.mca{display:flex;gap:5px}.mca{flex-wrap:wrap;justify-content:flex-end;max-width:260px}
+.mb{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-direction:column;color:rgba(255,255,255,.4);font-size:10px;font-weight:700}
+.mb:active{background:rgba(255,255,255,.15);transform:scale(.93)}
+.mb.lk{opacity:.2;pointer-events:none}
+.mb .ic{font-size:16px}.mb .lb{font-size:7px;margin-top:1px;opacity:.5}
+@media(hover:none)and(pointer:coarse){.mc{display:block}}
+.ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.82);z-index:30;transition:opacity .4s}
+.ov.h{opacity:0;pointer-events:none}
+.ob{text-align:center;max-width:400px;padding:28px 36px}
+.ob h1{color:#e8e0d0;font-size:28px;font-weight:700;margin-bottom:5px}
+.ob h2{color:#e8d0a0;font-size:19px;font-weight:600;margin-bottom:6px}
+.ob p{color:rgba(255,255,255,.4);font-size:13px;line-height:1.6;margin-bottom:12px}
+.ob .ns{color:#f0c040;font-size:14px;font-weight:600;margin:8px 0}
+.ob .ht{color:rgba(255,255,255,.22);font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-top:8px}
+.ob .bt{display:inline-block;margin-top:12px;padding:9px 24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:9px;color:#e8e0d0;font-size:13px;cursor:pointer;font-weight:600}
+.hud{position:fixed;top:0;left:0;right:0;padding:8px 12px;z-index:10;pointer-events:none;display:flex;justify-content:space-between}
+.hl,.hr{display:flex;flex-direction:column;gap:3px}.hr{align-items:flex-end}
+.hb{width:130px;height:7px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.hf{height:100%;border-radius:4px;transition:width .2s}
+.hl2{color:rgba(255,255,255,.35);font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.bb{width:160px}.bb .hf{background:linear-gradient(90deg,#a030c0,#d050f0)}
+.xb{width:90px;height:3px;background:rgba(255,255,255,.03);border-radius:2px;overflow:hidden}
+.xf{height:100%;background:linear-gradient(90deg,#40a0f0,#60c0f0);border-radius:2px;transition:width .2s}
+.cmb{color:#f0c040;font-size:15px;font-weight:700;text-align:center;position:fixed;top:40px;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;transition:opacity .3s}
+.skh{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:3px;z-index:10;pointer-events:none}
+.ski{width:32px;height:32px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.ski .si{font-size:12px}.ski .sk{font-size:7px;color:rgba(255,255,255,.2);position:absolute;bottom:1px;font-weight:600}
+.ski.lk{opacity:.1}
+.ski .cd{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55)}
+@media(hover:none)and(pointer:coarse){.skh{display:none}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><div class="hl"><div class="hl2">HP</div><div class="hb"><div class="hf" id="hpF" style="width:100%;background:linear-gradient(90deg,#d04040,#f06060)"></div></div><div class="xb"><div class="xf" id="xpF" style="width:0%"></div></div><div class="hl2" id="sL">Stage 1</div><div class="hl2" id="wL" style="opacity:.5">Wave 1</div></div><div class="hr"><div class="hl2" id="bL" style="display:none">BOSS</div><div class="hb bb" id="bB" style="display:none"><div class="hf" id="bF" style="width:100%"></div></div></div></div>
+<div class="cmb" id="cmb" style="opacity:0"></div>
+<div class="skh" id="skh"></div>
+<div class="mc"><div class="mcr"><div class="mcd"><div class="mb" id="ml"><div class="ic">&#9664;</div></div><div class="mb" id="mr"><div class="ic">&#9654;</div></div><div class="mb" id="mj"><div class="ic">&#9650;</div></div></div><div class="mca" id="ma"></div></div></div>
+<div class="ov" id="ov"><div class="ob" id="ovb"><h1>Shadow Fist</h1><p>Fight through ten stages. Learn devastating skills.</p><div class="ht">arrows move - J punch - K kick</div><div class="bt" id="goB">Begin</div></div></div>
+<script>
+var C=document.getElementById('c'),X=C.getContext('2d'),W,H,S;
+function resize(){W=C.width=innerWidth*devicePixelRatio;H=C.height=innerHeight*devicePixelRatio;S=devicePixelRatio}
+resize();addEventListener('resize',resize);
+
+// ===== STICKMAN WITH JOINTS =====
+// Solid filled head. Two-segment arms (shoulder-elbow-hand).
+// Two-segment legs (hip-knee-foot). Same line weight everywhere.
+function drawStick(c,x,y,face,p,col,lw,sc,boss){
+  c.save();
+  c.translate(x,y);
+  c.scale(face*sc,sc);
+  var L=lw, HR=boss?10:8;
+  var sx=p.sx||4, sy=p.sy||-30;
+  c.strokeStyle=col;c.lineWidth=L;c.lineCap='round';c.lineJoin='round';
+
+  // Shadow
+  c.fillStyle='rgba(0,0,0,.1)';
+  c.beginPath();c.ellipse(0,2,10,2.5,0,0,6.28);c.fill();
+
+  // BACK LEG: hip(0,0) -> knee -> foot
+  c.beginPath();c.moveTo(-1,0);c.lineTo(p.lK[0],p.lK[1]);c.lineTo(p.lF[0],p.lF[1]);c.stroke();
+  // BACK ARM: shoulder -> elbow -> hand
+  c.beginPath();c.moveTo(sx,sy+4);c.lineTo(p.lE[0],p.lE[1]);c.lineTo(p.lH[0],p.lH[1]);c.stroke();
+  // TORSO
+  c.lineWidth=L*1.15;
+  c.beginPath();c.moveTo(0,0);c.lineTo(sx,sy);c.stroke();
+  c.lineWidth=L;
+  // FRONT LEG
+  c.beginPath();c.moveTo(1,0);c.lineTo(p.rK[0],p.rK[1]);c.lineTo(p.rF[0],p.rF[1]);c.stroke();
+  // FRONT ARM
+  c.beginPath();c.moveTo(sx,sy+4);c.lineTo(p.rE[0],p.rE[1]);c.lineTo(p.rH[0],p.rH[1]);c.stroke();
+  // HEAD - Alan Becker style: outlined circle (ring)
+  c.lineWidth=L*1.3;
+  c.beginPath();c.arc(sx,sy-HR-1,HR,0,6.28);c.stroke();
+  c.lineWidth=L;
+
+  if(boss){c.fillStyle='#f0c040';var cy=sy-HR*2-3;c.beginPath();c.moveTo(sx-7,cy);c.lineTo(sx-4,cy-8);c.lineTo(sx,cy-3);c.lineTo(sx+4,cy-8);c.lineTo(sx+7,cy);c.closePath();c.fill()}
+  c.restore();
+}
+
+// ===== POSE HELPER =====
+function P(sx,sy, rK,rF,lK,lF, rE,rH,lE,lH){
+  return {sx:sx,sy:sy, rK:rK,rF:rF,lK:lK,lF:lF, rE:rE,rH:rH,lE:lE,lH:lH};
+}
+function lerpP(a,b,t){
+  var r={sx:0,sy:0};
+  r.sx=a.sx+(b.sx-a.sx)*t; r.sy=a.sy+(b.sy-a.sy)*t;
+  r.rK=[a.rK[0]+(b.rK[0]-a.rK[0])*t, a.rK[1]+(b.rK[1]-a.rK[1])*t];
+  r.rF=[a.rF[0]+(b.rF[0]-a.rF[0])*t, a.rF[1]+(b.rF[1]-a.rF[1])*t];
+  r.lK=[a.lK[0]+(b.lK[0]-a.lK[0])*t, a.lK[1]+(b.lK[1]-a.lK[1])*t];
+  r.lF=[a.lF[0]+(b.lF[0]-a.lF[0])*t, a.lF[1]+(b.lF[1]-a.lF[1])*t];
+  r.rE=[a.rE[0]+(b.rE[0]-a.rE[0])*t, a.rE[1]+(b.rE[1]-a.rE[1])*t];
+  r.rH=[a.rH[0]+(b.rH[0]-a.rH[0])*t, a.rH[1]+(b.rH[1]-a.rH[1])*t];
+  r.lE=[a.lE[0]+(b.lE[0]-a.lE[0])*t, a.lE[1]+(b.lE[1]-a.lE[1])*t];
+  r.lH=[a.lH[0]+(b.lH[0]-a.lH[0])*t, a.lH[1]+(b.lH[1]-a.lH[1])*t];
+  return r;
+}
+
+// ===== IDLE =====
+function idleP(t){
+  var b=Math.sin(t*.03);
+  return P(2,-30+b,
+    [5,20],[5,44], [-4,20],[-4,44],
+    [8,-14+b],[6,-4+b], [-6,-14+b],[-4,-4+b]);
+}
+
+// ===== RUN CYCLE - STRAINED DESPERATE RUN =====
+// ===== RUN - FOREARMS POINT UP FROM ELBOWS (runner's 90-degree L shape) =====
+// ===== RUN - FORWARD ARM UP, BACK ARM DOWN =====
+// ===== RUN - SLOWER, arms visible when crossing =====
+function runP(t,spd){
+  var ph=((t*spd*.55)%(Math.PI*2))/(Math.PI*2);
+  var p6=ph*6, pi=Math.floor(p6)%6, bl=p6-Math.floor(p6);
+  var e=bl*bl*(3-2*bl);
+  var poses=[
+    P(7,-28,
+      [14,18],[10,44],   [-12,20],[-24,44],
+      [-6,-12],[-8,0],  [14,-14],[12,-24]),
+    P(9,-26,
+      [14,28],[4,44],   [-2,12],[-8,30],
+      [4,-12],[2,-10],  [6,-12],[4,-14]),
+    P(5,-30,
+      [2,22],[0,44],   [14,0],[8,14],
+      [14,-14],[12,-24],  [-6,-12],[-8,0]),
+    P(7,-28,
+      [-12,20],[-24,44],  [14,18],[10,44],
+      [14,-14],[12,-24],  [-6,-12],[-8,0]),
+    P(9,-26,
+      [-2,12],[-8,30],  [14,28],[4,44],
+      [6,-12],[4,-14],  [4,-12],[2,-10]),
+    P(5,-30,
+      [14,0],[8,14],   [2,22],[0,44],
+      [-6,-12],[-8,0],  [14,-14],[12,-24]),
+  ];
+  return lerpP(poses[pi], poses[(pi+1)%6], e);
+}
+
+// ===== PUNCH - WHOLE BODY, SLOW WINDUP, DEVASTATING SNAP =====
+function punchP(pr){
+  var G=44;
+  // Phase 1 (0-40%): SLOW WINDUP - fist pulls WAY behind body, torso rotates back,
+  //   weight shifts to back foot, front foot lifts slightly, whole body coils
+  if(pr<.4){var t=pr/.4;
+    return P(2-t*14,-30+t*3,
+      [6-t*4,20+t*2],[6-t*8,G],  [-4-t*10,20-t*2],[-4-t*14,G-t*4],
+      [-4-t*24,-14+t*8],[-8-t*26,-6+t*16],
+      [6+t*8,-16+t*6],[4+t*8,-8+t*6]);}
+  // Phase 2 (40-55%): EXPLOSIVE STRIKE - everything snaps forward at once
+  //   Torso drives forward, back foot pushes off, fist launches
+  if(pr<.55){var t=(pr-.4)/.15;
+    return P(-12+t*28,-27-t*3,
+      [2+t*10,22-t*4],[- 2+t*14,G],  [-14+t*4,18+t*4],[-18+t*6,G-4+t*4],
+      [-28+t*66,-6-t*16],[-34+t*76,10-t*34],
+      [14-t*20,-10+t*2],[12-t*22,-2+t*6]);}
+  // Phase 3 (55-100%): FOLLOW THROUGH - body settles, slow recovery
+  var t=(pr-.55)/.45;
+  return P(16-t*14,-30,
+    [12-t*6,18+t*2],[12-t*6,G],  [-10+t*6,22-t*2],[-12+t*8,G],
+    [38-t*32,-22+t*8],[42-t*36,-24+t*18],
+    [-6+t*12,-8],[-10+t*14,4-t*12]);
+}
+
+// ===== KICK - LEG SWINGS BEHIND FIRST, THEN DEVASTATING SNAP FORWARD =====
+function kickP(pr){
+  var G=44;
+  // Phase 1 (0-35%): SLOW WINDUP - kicking leg swings BEHIND the body first,
+  //   torso leans forward to counterbalance, arms brace, weight on front foot
+  if(pr<.35){var t=pr/.35;
+    return P(2+t*6,-30-t*2,
+      [6-t*4,20-t*6],[6-t*16,G-t*8],  [-4-t*8,20+t*4],[-4-t*4,G],
+      [6-t*8,-14+t*2],[4-t*8,-8+t*6],
+      [-6-t*4,-14+t*2],[-4-t*6,-6+t*4]);}
+  // Phase 2 (35-52%): DEVASTATING SNAP - leg whips from behind all the way forward
+  //   Torso throws backward for counterbalance, massive extension
+  if(pr<.52){var t=(pr-.35)/.17;
+    return P(8-t*20,-32+t*4,
+      [2+t*32,14-t*8],[- 10+t*52,36-t*28],  [-12,24-t*2],[-8,G],
+      [-2-t*4,-12-t*4],[-4-t*4,-2-t*10],
+      [-10+t*2,-12],[-10+t*2,-2]);}
+  // Phase 3 (52-65%): HOLD - freeze at full extension, feel the impact
+  if(pr<.65){
+    return P(-12,-28,
+      [34,6],[42,8],  [-12,22],[-8,G],
+      [-6,-16],[-8,-12],
+      [-8,-12],[-8,-2]);}
+  // Phase 4 (65-100%): SLOW RECOVERY - leg returns
+  var t=(pr-.65)/.35;
+  return P(-12+t*14,-28-t*2,
+    [34-t*28,6+t*14],[42-t*36,8+t*36],  [-12+t*8,22-t*2],[-8+t*4,G],
+    [-6+t*12,-16+t*2],[-8+t*12,-12+t*4],
+    [-8+t*2,-12],[-8+t*2,-2-t*6]);
+}
+function upperP(pr){
+  var G=44;
+  if(pr<.35){var t=pr/.35;return P(2,-30+t*4, [5,20],[5,G],[-4,20],[-4,G],
+    [4-t*4,-14+t*8],[2-t*6,-4+t*10], [-6,-16],[-4,-6]);}
+  if(pr<.6){var t=(pr-.35)/.25;return P(2+t*2,-26-t*10, [5,20-t*4],[5,G],[-4,20],[-4,G],
+    [0+t*10,-6-t*24],[- 4+t*16,6-t*44], [-6,-16],[-4,-6]);}
+  var t=(pr-.6)/.4;return P(4-t*2,-36+t*6, [5,16+t*4],[5,G],[-4,20],[-4,G],
+    [10-t*4,-30+t*14],[12-t*8,-38+t*30], [-6,-16],[-4,-6]);
+}
+
+function spinP(pr){var G=44;var a=pr*Math.PI*2,s=Math.sin(a),co=Math.cos(a);
+  return P(s*3,-30, [co*14,16],[co*22,8+Math.abs(co)*36], [-co*14,16],[-co*22,8+Math.abs(co)*36],
+    [co*16,-18],[co*20,-10], [-co*16,-18],[-co*20,-10]);}
+
+function fireP(pr){var G=44;
+  if(pr<.4){var t=pr/.4;return P(2-t*4,-30, [5,20],[5,G],[-5,20],[-5,G],
+    [-4-t*10,-16+t*2],[-6-t*10,-6+t*6], [-4-t*6,-16+t*2],[-2-t*8,-6+t*4]);}
+  var t=Math.min(1,(pr-.4)/.25);return P(-2+t*10,-30, [5,20],[5,G],[-5,20],[-5,G],
+    [-14+t*30,-14-t*4],[-16+t*48,-0-t*14], [-10,-14],[-10,-2]);}
+
+function thundP(pr){var G=44;var r=Math.min(1,pr/.4);
+  return P(2,-30-r*4, [6,18],[8,G],[-5,18],[-7,G],
+    [4+r*4,-14-r*16],[6+r*2,-6-r*30], [-4-r*4,-14-r*16],[-6-r*2,-6-r*30]);}
+
+function dashP(pr){var G=44;
+  return P(10,-30, [14,18],[20,G],[-14,18],[-22,40],
+    [18,-20],[26,-14], [-12,-12],[-18,0]);}
+
+// Jump windup crouch - builds energy, body compresses down
+function crouchP(pr){
+  // pr=1 at start (looks like idle), pr~0 at launch (fully compressed)
+  var G=44;
+  var sq=1-pr; // 0=idle, 1=fully compressed
+  var e=sq*sq; // ease-in: starts slow, accelerates into crouch
+  return P(2, -30+e*10,
+    [6+e*6, 20+e*10],[5+e*3, G],
+    [-4-e*4, 20+e*10],[-4-e*2, G],
+    [-4-e*10, -14+e*8],[-6-e*12, -6+e*10],
+    [-2-e*6, -14+e*8],[-4-e*8, -6+e*10]);
+}
+
+function jumpP(){
+  // Dynamic jump - pose changes based on vertical velocity
+  var vy=Pl.vy, vx=Pl.vx;
+  var rise=Math.max(0,Math.min(1,(-vy)/11)); // 1=rising fast, 0=falling
+  var fall=Math.max(0,Math.min(1,vy/10));     // 1=falling fast, 0=rising
+  var lean=vx*1.5; // lean into movement direction
+
+  // RISING: legs tuck up, arms reach up, body stretches
+  // FALLING: legs extend down, arms sweep back, body compresses
+  // AIR CONTROL: body leans into movement direction
+
+  var kR=rise*.8; // knee rise factor
+  var kF=fall*.6; // knee fall factor
+
+  return P(2+lean,-30-rise*3+fall*2,
+    [6-kF*4, 10+fall*14-kR*6],[4-kF*2, 22+fall*22-kR*10],
+    [-4+kF*2, 10+fall*14-kR*6],[-6+kF*4, 22+fall*22-kR*10],
+    [8+rise*4+lean*2, -18-rise*8+fall*4],[6+rise*2+lean, -10-rise*12+fall*6],
+    [-6-rise*2-lean*2, -18-rise*8+fall*4],[-4-rise*4-lean, -10-rise*12+fall*6]);
+}
+
+function hitP2(){return P(-6,-28, [6,18],[8,44],[-2,20],[0,44], [6,-6],[8,4],[-2,-8],[0,4]);}
+
+
+// ===== GROUND SLAM - Jump attack combo =====
+// Phases: 0-20% fist raised in air, 20-45% diving down, 45-55% impact+shockwave,
+// 55-100% prone on ground dazed
+// ===== GROUND SLAM - Researched superhero landing sequence =====
+// Phase 1: Float in air, fist raises (frames 1-18)
+// Phase 2: Body rotates toward ground, fist pulls behind (18-32)
+// Phase 3: Brief dramatic pause (32-38)
+// Phase 4: Rocket dive, fist-first (38+, until ground contact)
+function slamP(frame){
+  var G=44;
+  // FLOAT - arms raise above head, legs tuck, body hangs in air
+  if(frame<18){var t=frame/18;
+    return P(2+t*2,-30-t*4,
+      [6-t*2,20-t*12],[6-t*2,G-t*16],  [-4,20-t*12],[-4,G-t*16],
+      [4+t*6,-14-t*20],[2+t*8,-8-t*30],
+      [-6+t*2,-14-t*10],[-4+t*2,-8-t*14]);}
+  // ROTATE - torso tilts forward, fist pulls WAY behind head for windup
+  if(frame<32){var t=(frame-18)/14;
+    return P(4+t*12,-34+t*10,
+      [4-t*10,8+t*4],[4-t*14,28+t*2],  [-4-t*6,8+t*4],[-4-t*10,28+t*2],
+      [10-t*20,-34+t*12],[10-t*26,-38+t*18],
+      [-4+t*14,-24+t*10],[-2+t*18,-22+t*14]);}
+  // PAUSE - frozen, dramatic tension, body angled ~60deg toward ground
+  if(frame<38){
+    return P(16,-24,
+      [-6,12],[-10,30],  [-10,12],[-14,30],
+      [-10,-22],[-16,-20],
+      [10,-14],[16,-8]);}
+  // DIVE - body nearly vertical pointing DOWN, lead fist below, legs trail above
+  var t=Math.min(1,(frame-38)/10);
+  return P(14+t*4,-24+t*16,
+    [-6-t*4,12+t*20],[-10+t*6,30+t*14],  [-10-t*2,12+t*20],[-14+t*6,30+t*14],
+    [10+t*6,-14+t*18],[16+t*6,-8+t*16],
+    [-10+t*16,-22+t*26],[-16+t*22,-20+t*28]);
+}
+
+// ===== FACE-DOWN PRONE on ground =====
+// ===== FACE-DOWN PRONE - body fully HORIZONTAL on ground =====
+// Hip at (0,0) is on the ground. Shoulder goes FAR forward at same height = horizontal torso.
+// ===== PRONE - lying face-down, spread wide so shape is readable =====
+function proneP(){
+  // Torso horizontal: hip(0,0) to shoulder(32,-2). Head at ~(32,-10).
+  // Legs trail FAR behind. Arms stretched forward on ground.
+  // Total spread: ~70px wide so it reads clearly as "lying flat"
+  return P(32,-2,
+    [-16,4],[-34,6],  [-18,4],[-36,6],
+    [24,6],[38,8],
+    [20,4],[34,6]);
+}
+
+// ===== GETUP - 5 distinct held phases over 3 seconds =====
+function getupP(pr){
+  var G=44;
+
+  // Phase 1 (0-30%): FACE DOWN - completely still, clearly lying flat
+  if(pr<.3) return proneP();
+
+  // Phase 2 (30-50%): PUSH-UP - hands plant, arms push torso UP
+  //   Shoulder rises from (32,-2) toward (16,-18)
+  //   Arms go from flat to pushing down against ground
+  //   Legs still flat behind
+  if(pr<.5){var t=(pr-.3)/.2;
+    return P(32-t*16, -2-t*16,
+      [-16+t*4, 4+t*12],[-34+t*18, 6+t*24],
+      [-18+t*6, 4+t*12],[-36+t*20, 6+t*24],
+      [24-t*12, 6-t*2],[38-t*24, 8+t*8],
+      [20-t*10, 4],[34-t*22, 6+t*6]);}
+
+  // Phase 3 (50-72%): ONE KNEE FORWARD
+  //   Torso lifts toward vertical. Right knee comes under body.
+  //   Left knee stays on ground. Classic "kneeling recovery"
+  //   Shoulder moves from (16,-18) toward (5,-26)
+  if(pr<.72){var t=(pr-.5)/.22;
+    return P(16-t*11, -18-t*8,
+      [-12+t*18, 16+t*10],[-16+t*22, 30+t*14],
+      [-12-t*2, 16+t*12],[-16-t*4, 30+t*14],
+      [12-t*4, 4-t*12],[14-t*4, 16-t*20],
+      [10-t*8, 4-t*10],[12-t*10, 12-t*18]);}
+
+  // Phase 4 (72-85%): HOLD KNEELING - dramatic pause on one knee
+  //   One knee down, other foot forward, fist on ground (three-point landing pose)
+  if(pr<.85){
+    return P(5, -26,
+      [6, 26],[6, G],
+      [-14, 28],[-20, G],
+      [8, -8],[10, -4],
+      [2, -6],[0, -6]);}
+
+  // Phase 5 (85-100%): STAND UP from kneel to full height
+  var t=(pr-.85)/.15;
+  return P(5-t*3, -26-t*4,
+    [6-t*2, 26-t*6],[6, G],
+    [-14+t*10, 28-t*8],[-20+t*16, G],
+    [8-t*2, -8-t*6],[10-t*4, -4-t*4],
+    [2-t*8, -6-t*8],[0-t*6, -6-t*2]);
+}
+
+var ATK={punch:punchP,kick:kickP,uppercut:upperP,spinKick:spinP,fireball:fireP,thunder:thundP,dashAtk:dashP};
+var SK=[
+  {id:'punch',nm:'Punch',key:'J',ic:'\u{1F44A}',dmg:12,rng:55,cd:0,mx:0,stg:0,col:'#e0c0a0',tp:'melee',kb:6,st:10,dur:24,pose:'punch'},
+  {id:'kick',nm:'Kick',key:'K',ic:'\u{1F9B6}',dmg:18,rng:65,cd:0,mx:0,stg:0,col:'#c0a0e0',tp:'melee',kb:12,st:16,dur:26,pose:'kick'},
+  {id:'upper',nm:'Uppercut',key:'L',ic:'\u{1F4A5}',dmg:22,rng:45,cd:0,mx:60,stg:3,col:'#f0a040',tp:'melee',kb:3,st:22,dur:20,pose:'uppercut',launch:1},
+  {id:'spin',nm:'Spin',key:'U',ic:'\u{1F300}',dmg:18,rng:80,cd:0,mx:80,stg:5,col:'#40c0f0',tp:'aoe',kb:6,st:16,dur:24,pose:'spinKick'},
+  {id:'fire',nm:'Fire',key:'I',ic:'\u{1F525}',dmg:30,rng:280,cd:0,mx:110,stg:7,col:'#f06020',tp:'proj',kb:9,st:18,dur:18,pose:'fireball',spd:8},
+  {id:'bolt',nm:'Thunder',key:'O',ic:'\u{26A1}',dmg:40,rng:100,cd:0,mx:180,stg:8,col:'#f0e040',tp:'aoe',kb:12,st:28,dur:22,pose:'thunder'},
+  {id:'dragon',nm:'Dragon',key:'P',ic:'\u{1F409}',dmg:55,rng:150,cd:0,mx:240,stg:9,col:'#40f080',tp:'dash',kb:16,st:32,dur:18,pose:'dashAtk',spd:16},
+];
+function ulk(s){return cStg>=s.stg}
+var SNAME=['The Path','Dark Alley','Rooftop','The Docks','Underground','The Bridge','Neon District','Temple Gates','The Tower','Final Stand'];
+var SBG=[['#1a1520','#2a2030'],['#141418','#242428'],['#181828','#282838'],['#0e1820','#182830'],['#0a0a14','#1a1a24'],['#181520','#282530'],['#1a1028','#2a1a38'],['#1a1510','#2a2520'],['#141020','#241a30'],['#0a0508','#1a0a10']];
+function mkW(s){var n=5+Math.floor(s*.7),w=[];for(var i=0;i<n;i++){var b=i===n-1;w.push({cnt:b?1:2+Math.floor(s/2)+Math.floor(i/3),hp:b?180+s*100:30+s*16+i*6,dmg:b?10+s*3:3+Math.floor(s*1.5),spd:b?1+s*.08:.7+s*.06+Math.random()*.2,tp:b?'boss':s<3?'basic':s<6?(Math.random()>.5?'basic':'fast'):(Math.random()>.6?'heavy':'fast'),b:b})}return w}
+var MAP_L=0,MAP_R=3000;
+var st='menu',cStg=0,cWv=0,t=0,waves=[],spQ=0,spT=0,wDel=0;
+var combo=0,comboT=0,mxC=0,xp=0,lvl=1,xpN=50;
+var projs=[],fxs=[],ens=[],dN=[],shT=0,shA=0,camX=0,cracks=[];
+var GND_H=70,GRAV=0.55,gY=0;
+var Pl={x:200,y:0,vx:0,vy:0,hp:100,mhp:100,face:1,gnd:true,atk:false,atkT:0,atkD:0,atkSk:null,atkHit:false,stunT:0,ifr:0,wf:0,slam:0,prone:0,jw:0};
+var K={l:0,r:0,u:0},pr2={};
+addEventListener('keydown',function(e){
+  if(st==='menu'||st==='intro'){go();return}if(st==='dead'){rst();return}
+  if(e.key==='ArrowLeft'||e.key==='a')K.l=1;if(e.key==='ArrowRight'||e.key==='d')K.r=1;
+  if(e.key==='ArrowUp'||e.key==='w'||e.key===' ')K.u=1;
+  var k=e.key.toLowerCase();for(var i=0;i<SK.length;i++)if(SK[i].key.toLowerCase()===k&&ulk(SK[i]))pr2[SK[i].id]=1;e.preventDefault();});
+addEventListener('keyup',function(e){if(e.key==='ArrowLeft'||e.key==='a')K.l=0;if(e.key==='ArrowRight'||e.key==='d')K.r=0;if(e.key==='ArrowUp'||e.key==='w'||e.key===' ')K.u=0});
+function tb(id,k){var e=document.getElementById(id);if(!e)return;e.ontouchstart=function(ev){ev.preventDefault();K[k]=1};e.ontouchend=function(ev){ev.preventDefault();K[k]=0}}
+tb('ml','l');tb('mr','r');tb('mj','u');
+document.getElementById('goB').onclick=go;
+document.getElementById('ov').onclick=function(){if(st==='intro')go();if(st==='dead')rst()};
+function go(){if(st==='menu'){st='intro';cStg=0;cWv=0;Pl.hp=Pl.mhp;Pl.x=200;xp=0;lvl=1;xpN=50;ens=[];projs=[];fxs=[];dN=[];cracks=[];combo=0;for(var i=0;i<SK.length;i++)SK[i].cd=0;showI();return}if(st==='intro'){document.getElementById('ov').classList.add('h');st='playing';startW();return}}
+function rst(){st='menu';document.getElementById('ovb').innerHTML='<h1>Shadow Fist</h1><p>Fight through ten stages.</p><div class="ht">arrows move - J punch - K kick<br>jump + J = ground slam</div><div class="bt" id="goB">Begin</div>';document.getElementById('goB').onclick=go;document.getElementById('ov').classList.remove('h')}
+function showI(){var ns=null;for(var i=0;i<SK.length;i++)if(SK[i].stg===cStg&&SK[i].stg>0)ns=SK[i];var h='<h2>Stage '+(cStg+1)+'</h2><h1>'+SNAME[cStg]+'</h1>';waves=mkW(cStg);h+='<p>'+waves.length+' waves</p>';if(ns)h+='<div class="ns">New: '+ns.ic+' '+ns.nm+' ['+ns.key+']</div>';h+='<div class="ht">tap to start</div>';document.getElementById('ovb').innerHTML=h;document.getElementById('ov').classList.remove('h');cWv=0;ens=[];projs=[];buildUI()}
+function showD(){st='dead';document.getElementById('ovb').innerHTML='<h1>Defeated</h1><p>Stage '+(cStg+1)+'</p><div class="bt">Retry</div>';document.getElementById('ov').classList.remove('h')}
+function showW2(){st='win';document.getElementById('ovb').innerHTML='<h1>Victory!</h1>';document.getElementById('ov').classList.remove('h')}
+function buildUI(){var sh=document.getElementById('skh');sh.innerHTML='';for(var i=0;i<SK.length;i++){var s=SK[i],d=document.createElement('div');d.className='ski'+(ulk(s)?'':' lk');d.id='si_'+s.id;d.innerHTML='<div class="si">'+s.ic+'</div><div class="sk">'+s.key+'</div>';sh.appendChild(d)}var ma=document.getElementById('ma');ma.innerHTML='';for(var i=0;i<SK.length;i++){(function(s){var b=document.createElement('div');b.className='mb'+(ulk(s)?'':' lk');b.innerHTML='<div class="ic">'+s.ic+'</div><div class="lb">'+s.key+'</div>';if(ulk(s))b.ontouchstart=function(e){e.preventDefault();pr2[s.id]=1};ma.appendChild(b)})(SK[i])}}
+function startW(){if(cWv>=waves.length)return;spQ=waves[cWv].cnt;spT=0;wDel=0;document.getElementById('wL').textContent='Wave '+(cWv+1)+'/'+waves.length;document.getElementById('sL').textContent='Stage '+(cStg+1);var w=waves[cWv];document.getElementById('bL').style.display=w.b?'':'none';document.getElementById('bB').style.display=w.b?'':'none'}
+function spE(w){var side=Math.random()>.5?1:-1;ens.push({x:Pl.x+side*(350+Math.random()*200),y:0,vx:0,vy:0,hp:w.hp,mhp:w.hp,dmg:w.dmg,spd:w.spd,tp:w.tp,b:w.b,face:side<0?1:-1,stunT:0,atkT:40+Math.random()*30,atkCd:50+Math.random()*40,wf:0,fl:0,aa:0,ad:0})}
+function useSk(sk){if(Pl.atk||Pl.stunT>0||sk.cd>0||!ulk(sk))return;Pl.atk=true;Pl.atkT=0;Pl.atkD=sk.dur;Pl.atkSk=sk;Pl.atkHit=false;sk.cd=sk.mx;shT=3;shA=sk.dmg>30?5:2}
+function doHit(sk){if(sk.tp==='proj'){projs.push({x:Pl.x+Pl.face*35,y:gY-25+Pl.y,vx:sk.spd*Pl.face,dmg:sk.dmg,kb:sk.kb,stn:sk.st,life:70,sz:7,col:sk.col,id:sk.id})}else if(sk.tp==='dash'){Pl.vx=sk.spd*Pl.face;Pl.ifr=20}for(var i=0;i<ens.length;i++){var e=ens[i],hit=false;if(sk.tp==='aoe')hit=Math.abs(e.x-Pl.x)<sk.rng;else if(sk.tp==='melee'||sk.tp==='dash')hit=(e.x-Pl.x)*Pl.face>-10&&(e.x-Pl.x)*Pl.face<sk.rng;if(hit)hitE(e,sk)}}
+function hitE(e,sk){var d=sk.dmg+Math.floor(lvl*1.2);e.hp-=d;e.stunT=sk.st;e.vx=sk.kb*(e.x>Pl.x?1:-1);if(sk.launch)e.vy=-10;e.fl=10;combo++;comboT=90;mxC=Math.max(mxC,combo);dN.push({x:e.x,y:gY-55,v:d,life:40,vy:-1.5,col:sk.col});fxs.push({tp:'ht',x:e.x,y:gY-28,life:10,ml:10,col:sk.col});shT=4;shA=4}
+function hitPl(d){if(Pl.ifr>0)return;Pl.hp-=d;Pl.ifr=25;Pl.stunT=12;Pl.vx=Pl.face*-4;shT=5;shA=5;if(Pl.hp<=0){Pl.hp=0;showD()}}
+
+function update(){
+  if(st!=='playing')return;t++;
+  for(var i=0;i<SK.length;i++)if(SK[i].cd>0)SK[i].cd--;
+  if(!Pl.gnd&&!Pl.atk&&Pl.slam<=0&&Pl.prone<=0&&pr2['punch']){Pl.slam=1;Pl.atk=false;delete pr2['punch']}
+  for(var i=0;i<SK.length;i++)if(pr2[SK[i].id])useSk(SK[i]);
+  for(var k in pr2)delete pr2[k];
+  if(Pl.stunT>0&&Pl.prone<=0)Pl.stunT--;
+  else if(!Pl.atk&&Pl.prone<=0&&Pl.slam<=0){if(K.l){Pl.vx=-4.5;Pl.face=-1}else if(K.r){Pl.vx=4.5;Pl.face=1}else Pl.vx*=.7;if(K.u&&Pl.gnd&&Pl.jw<=0){Pl.jw=10}}
+  if(Pl.ifr>0)Pl.ifr--;
+  // JUMP WINDUP - crouch builds energy then launch
+  if(Pl.jw>0){Pl.jw--;Pl.vx*=.5;if(Pl.jw<=0){Pl.vy=-13;Pl.gnd=false}}
+  if(Pl.atk){Pl.atkT++;var pg=Pl.atkT/Pl.atkD;if(pg>=.35&&pg<.5&&!Pl.atkHit){Pl.atkHit=true;doHit(Pl.atkSk)}if(Pl.atkT>=Pl.atkD){Pl.atk=false;Pl.atkSk=null}}
+  // SLAM PHYSICS
+  if(Pl.slam>0){Pl.slam++;
+    if(Pl.slam<18)Pl.vy*=.85;
+    else if(Pl.slam<38)Pl.vy*=.5;
+    else Pl.vy=16;
+    if(Pl.gnd&&Pl.slam>38){
+      var slamSk={dmg:40,rng:140,tp:'aoe',kb:22,st:35,col:'#f0a040',launch:1};
+      for(var si=0;si<ens.length;si++)if(Math.abs(ens[si].x-Pl.x)<140)hitE(ens[si],slamSk);
+      shT=12;shA=10;
+      for(var sj=0;sj<24;sj++)fxs.push({tp:'pt',x:Pl.x+(Math.random()-.5)*160,y:gY+(Math.random()-.5)*10,vx:(Math.random()-.5)*10,vy:-Math.random()*8-3,life:40+Math.random()*20,ml:60,col:Math.random()>.5?'#f0c040':'#c0a060',sz:2+Math.random()*4});
+      fxs.push({tp:'ht',x:Pl.x,y:gY,life:20,ml:20,col:'#f0c040'});
+      cracks.push({x:Pl.x,life:600});
+      Pl.slam=0;Pl.prone=180;Pl.stunT=180;Pl.vx=0}}
+  if(Pl.prone>0){Pl.prone--;if(Pl.prone<=0)Pl.stunT=0}
+  if(Pl.slam<=0||Pl.slam>38)Pl.vy+=GRAV;
+  Pl.x+=Pl.vx;Pl.y+=Pl.vy;Pl.vx*=.87;gY=H/S-GND_H;
+  if(Pl.y>=0){Pl.y=0;Pl.vy=0;Pl.gnd=true}
+  if(Pl.x<MAP_L+30)Pl.x=MAP_L+30;if(Pl.x>MAP_R-30)Pl.x=MAP_R-30;
+  if(Pl.gnd&&(K.l||K.r)&&!Pl.atk&&Pl.prone<=0)Pl.wf+=.14;
+  if(comboT>0)comboT--;else combo=0;
+  var cc=document.getElementById('cmb');if(combo>2){cc.textContent=combo+' HIT';cc.style.opacity='1'}else cc.style.opacity='0';
+  if(spQ>0){spT++;if(spT%35===0){spE(waves[cWv]);spQ--}}
+  for(var i=ens.length-1;i>=0;i--){var e=ens[i];if(e.fl>0)e.fl--;
+    if(e.hp<=0){for(var j=0;j<10;j++)fxs.push({tp:'pt',x:e.x+(Math.random()-.5)*24,y:gY-25+(Math.random()-.5)*24,vx:(Math.random()-.5)*5,vy:-Math.random()*5,life:25+Math.random()*18,ml:43,col:'#ddd',sz:2+Math.random()*2});xp+=e.b?45+cStg*8:8+cStg*2;if(xp>=xpN){xp-=xpN;lvl++;xpN=Math.floor(xpN*1.25);Pl.mhp+=8;Pl.hp=Math.min(Pl.hp+25,Pl.mhp)}ens.splice(i,1);continue}
+    e.vy+=GRAV;if(e.stunT>0){e.stunT--;e.x+=e.vx;e.vx*=.86}
+    else{var dx=Pl.x-e.x;e.face=dx>0?1:-1;if(e.aa>0)e.aa--;
+      else if(Math.abs(dx)>60){e.vx=e.spd*e.face*(e.tp==='fast'?1.5:e.tp==='heavy'?.6:1);e.wf+=.12}
+      else{e.vx*=.7;e.atkT--;if(e.atkT<=0){hitPl(e.dmg);e.atkT=e.atkCd;e.aa=14;e.ad=14;fxs.push({tp:'ht',x:Pl.x,y:gY-25,life:7,ml:7,col:'#f04040'})}}e.x+=e.vx}
+    e.y+=e.vy;if(e.y>=0){e.y=0;e.vy=0}}
+  if(ens.length===0&&spQ===0&&st==='playing'){wDel++;if(wDel>45){wDel=0;cWv++;if(cWv>=waves.length){cStg++;Pl.hp=Math.min(Pl.hp+30,Pl.mhp);if(cStg>=10)showW2();else{st='intro';showI()}}else startW()}}
+  for(var i=projs.length-1;i>=0;i--){var p=projs[i];p.x+=p.vx;p.life--;for(var j=0;j<ens.length;j++){if(Math.abs(ens[j].x-p.x)<28&&Math.abs((gY+ens[j].y-25)-p.y)<28){var sk2=SK[0];for(var q=0;q<SK.length;q++)if(SK[q].id===p.id)sk2=SK[q];hitE(ens[j],sk2);p.life=0;break}}if(p.life<=0)projs.splice(i,1)}
+  for(var i=fxs.length-1;i>=0;i--){fxs[i].life--;if(fxs[i].vx)fxs[i].x+=fxs[i].vx;if(fxs[i].vy)fxs[i].y+=fxs[i].vy;if(fxs[i].life<=0)fxs.splice(i,1)}
+  for(var i=dN.length-1;i>=0;i--){dN[i].y+=dN[i].vy;dN[i].life--;if(dN[i].life<=0)dN.splice(i,1)}
+  for(var i=cracks.length-1;i>=0;i--){cracks[i].life--;if(cracks[i].life<=0)cracks.splice(i,1)}
+  document.getElementById('hpF').style.width=Math.max(0,Pl.hp/Pl.mhp*100)+'%';
+  document.getElementById('xpF').style.width=(xp/xpN*100)+'%';
+  var boss=null;for(var i=0;i<ens.length;i++)if(ens[i].b){boss=ens[i];break}
+  if(boss)document.getElementById('bF').style.width=Math.max(0,boss.hp/boss.mhp*100)+'%';
+  camX+=(Pl.x-W/S*.4-camX)*.05;if(shT>0)shT--;
+}
+
+function draw(){
+  X.save();X.scale(S,S);var vw=W/S,vh=H/S;gY=vh-GND_H;
+  if(shT>0)X.translate((Math.random()-.5)*shA,(Math.random()-.5)*shA);
+  var bi=Math.min(cStg,9),bg=X.createLinearGradient(0,0,0,vh);bg.addColorStop(0,SBG[bi][0]);bg.addColorStop(1,SBG[bi][1]);X.fillStyle=bg;X.fillRect(0,0,vw,vh);
+  X.fillStyle='rgba(255,255,255,.012)';for(var i=0;i<18;i++){var bx=((i*95-camX*.06)%(vw+180))-90;var bh=20+Math.sin(i*3.7)*30;X.fillRect(bx,gY-bh,14+Math.sin(i*2)*8,bh)}
+  X.fillStyle='rgba(255,255,255,.02)';for(var i=0;i<10;i++){var bx2=((i*150-camX*.16+40)%(vw+260))-130;var bh2=35+Math.sin(i*2.3)*40;X.fillRect(bx2,gY-bh2,20+Math.sin(i*1.7)*14,bh2)}
+  X.fillStyle='rgba(255,255,255,.025)';X.fillRect(0,gY,vw,GND_H);
+  // Floor paving
+  X.strokeStyle='rgba(255,255,255,.04)';X.lineWidth=1;
+  var tW=40,tOff=((-camX%tW)+tW)%tW;
+  for(var tx=-tW+tOff;tx<vw+tW;tx+=tW){X.beginPath();X.moveTo(tx,gY);X.lineTo(tx,gY+GND_H);X.stroke()}
+  X.beginPath();X.moveTo(0,gY+GND_H/2);X.lineTo(vw,gY+GND_H/2);X.stroke();
+  var tOff2=((-camX+tW/2)%tW+tW)%tW;
+  for(var tx2=-tW+tOff2;tx2<vw+tW;tx2+=tW){X.beginPath();X.moveTo(tx2,gY+GND_H/2);X.lineTo(tx2,gY+GND_H);X.stroke()}
+  X.strokeStyle='rgba(255,255,255,.05)';X.beginPath();X.moveTo(0,gY);X.lineTo(vw,gY);X.stroke();
+  // Cracks
+  for(var ci=0;ci<cracks.length;ci++){var cr=cracks[ci],cx=cr.x-camX,ca=Math.min(1,cr.life/60);
+    X.strokeStyle='rgba(255,200,100,'+(.12*ca)+')';X.lineWidth=1.5;
+    for(var cl=0;cl<8;cl++){var ang=cl*.785+cl*.3,len=14+cl*5;X.beginPath();X.moveTo(cx,gY);X.lineTo(cx+Math.cos(ang)*len,gY+Math.abs(Math.sin(ang))*len*.5);X.stroke()}}
+  // Walls
+  var wl=MAP_L-camX,wr=MAP_R-camX;X.fillStyle='rgba(255,255,255,.06)';
+  if(wl>-20&&wl<vw+20)X.fillRect(wl-8,gY-120,8,120);
+  if(wr>-20&&wr<vw+20)X.fillRect(wr,gY-120,8,120);
+  // Enemies
+  for(var i=0;i<ens.length;i++){var e=ens[i],col=e.b?'#ff3030':e.tp==='fast'?'#30c0ff':e.tp==='heavy'?'#e0c030':'#a0a0a0';
+    var sc2=e.b?1.3:e.tp==='heavy'?1.1:1,anim;
+    if(e.stunT>0)anim=hitP2();else if(e.aa>0)anim=punchP(1-e.aa/e.ad);else if(Math.abs(e.vx)>.3)anim=runP(e.wf,2);else anim=idleP(t);
+    drawStick(X,e.x-camX,gY+e.y,e.face,anim,e.fl>0?'#fff':col,e.b?5:4,sc2,e.b);
+    var bw2=e.b?40:20,by2=gY+e.y-52*sc2-6;X.fillStyle='rgba(255,255,255,.05)';X.fillRect(e.x-camX-bw2/2,by2,bw2,3);
+    var pct=Math.max(0,e.hp/e.mhp);X.fillStyle=e.b?'#d050f0':pct>.5?'#50c050':pct>.25?'#f0a040':'#f04040';X.fillRect(e.x-camX-bw2/2,by2,bw2*pct,3)}
+  // Player
+  if(!(Pl.ifr>0&&Math.floor(t/3)%2)){var anim;
+    if(Pl.slam>0)anim=slamP(Pl.slam);
+    else if(Pl.prone>0)anim=getupP(1-Pl.prone/180);
+    else if(Pl.stunT>0)anim=hitP2();
+    else if(Pl.atk&&Pl.atkSk){var fn=ATK[Pl.atkSk.pose];anim=fn?fn(Pl.atkT/Pl.atkD):punchP(Pl.atkT/Pl.atkD)}
+    else if(Pl.jw>0)anim=crouchP(Pl.jw/10);
+    else if(!Pl.gnd)anim=jumpP();
+    else if(K.l||K.r)anim=runP(Pl.wf,2);
+    else anim=idleP(t);
+    drawStick(X,Pl.x-camX,gY+Pl.y,Pl.face,anim,'#f0a030',5,1.15,false);
+    // Alan Becker style motion trail when moving fast
+    if((K.l||K.r||Pl.slam>0)&&!Pl.prone){
+      X.globalAlpha=.15;
+      drawStick(X,Pl.x-camX-Pl.vx*2,gY+Pl.y,Pl.face,anim,'#f0a030',4,1.15,false);
+      X.globalAlpha=.07;
+      drawStick(X,Pl.x-camX-Pl.vx*4,gY+Pl.y,Pl.face,anim,'#f0a030',3,1.15,false);
+      X.globalAlpha=1;
+    }
+    // Headband
+    var sx2=Pl.x-camX,sy2=gY+Pl.y,hY=(anim.sy||-30)*1.15-9;
+    X.save();X.translate(sx2,sy2);X.strokeStyle='#ff6030';X.lineWidth=3;X.lineCap='round';
+    X.beginPath();X.arc((anim.sx||4)*Pl.face*1.15,hY,9.5,2.2,6.28-2.2);X.stroke();
+    X.beginPath();X.moveTo(-Pl.face*9.5+(anim.sx||4)*Pl.face*1.15,hY);
+    X.quadraticCurveTo(-Pl.face*22,hY-4-Math.sin(t*.06)*2,-Pl.face*30,hY+Math.sin(t*.08)*3);X.stroke();X.restore();
+    if(Pl.atk&&Pl.atkSk&&Pl.atkT>Pl.atkD*.25&&Pl.atkT<Pl.atkD*.55){X.strokeStyle=Pl.atkSk.col;X.lineWidth=2;X.globalAlpha=.4;X.beginPath();X.arc(sx2+Pl.face*22,sy2-22,Pl.atkSk.rng*.4,-.8,.8);X.stroke();X.globalAlpha=1}}
+  // Projectiles + FX
+  for(var i=0;i<projs.length;i++){var p=projs[i],px=p.x-camX;X.fillStyle=p.col;X.globalAlpha=.8;X.beginPath();X.arc(px,p.y,p.sz,0,6.28);X.fill();X.globalAlpha=1}
+  for(var i=0;i<fxs.length;i++){var e=fxs[i];X.globalAlpha=Math.max(0,e.life/e.ml);if(e.tp==='ht'){X.strokeStyle=e.col;X.lineWidth=3;var r2=(e.ml-e.life)*4;X.beginPath();X.arc(e.x-camX,e.y,r2,0,6.28);X.stroke();
+    // Alan Becker impact lines radiating outward
+    X.lineWidth=2;for(var il=0;il<6;il++){var ia=il*1.047;X.beginPath();X.moveTo(e.x-camX+Math.cos(ia)*r2*.6,e.y+Math.sin(ia)*r2*.6);X.lineTo(e.x-camX+Math.cos(ia)*r2*1.4,e.y+Math.sin(ia)*r2*1.4);X.stroke()}
+    }else if(e.tp==='pt'){X.fillStyle=e.col;X.beginPath();X.arc(e.x-camX,e.y,(e.sz||2)*(e.life/e.ml),0,6.28);X.fill()}X.globalAlpha=1}
+  X.font='bold 14px system-ui';X.textAlign='center';
+  for(var i=0;i<dN.length;i++){var d=dN[i];X.globalAlpha=Math.min(1,d.life/20);X.fillStyle=d.col;X.fillText(d.v,d.x-camX,d.y);X.globalAlpha=1}
+  X.restore();
+}
+function loop(){update();draw();requestAnimationFrame(loop)}
+requestAnimationFrame(loop);buildUI();
+</script>
+</body>
+</html>
