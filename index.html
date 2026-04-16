@@ -1,3 +1,6 @@
+
+Copy
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,9 +22,9 @@
     --accent-warm: #C4663A;
     --accent-warm-light: #FFF4EF;
   }
-
+ 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
+ 
   body {
     background: var(--bg);
     color: var(--text-primary);
@@ -29,20 +32,20 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
-
+ 
   .container {
     max-width: 960px;
     margin: 0 auto;
     padding: 0 24px;
   }
-
+ 
   nav {
     padding: 24px 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-
+ 
   .nav-brand {
     display: flex;
     align-items: center;
@@ -50,21 +53,21 @@
     text-decoration: none;
     color: var(--text-primary);
   }
-
+ 
   .nav-logo { width: 36px; height: 36px; }
-
+ 
   .nav-name {
     font-weight: 700;
     font-size: 16px;
     letter-spacing: -0.3px;
   }
-
+ 
   .nav-links {
     display: flex;
     gap: 28px;
     list-style: none;
   }
-
+ 
   .nav-links a {
     text-decoration: none;
     color: var(--text-secondary);
@@ -72,21 +75,21 @@
     font-weight: 500;
     transition: color 0.2s;
   }
-
+ 
   .nav-links a:hover { color: var(--text-primary); }
-
+ 
   .hero {
     text-align: center;
     padding: 80px 0 60px;
     border-bottom: 1px solid var(--border);
   }
-
+ 
   .hero-mascot {
     width: 120px;
     height: 120px;
     margin: 0 auto 28px;
   }
-
+ 
   .hero h1 {
     font-family: 'Playfair Display', serif;
     font-size: clamp(36px, 6vw, 56px);
@@ -96,7 +99,7 @@
     color: var(--text-primary);
     margin-bottom: 16px;
   }
-
+ 
   .hero p {
     font-size: 17px;
     color: var(--text-secondary);
@@ -104,14 +107,14 @@
     margin: 0 auto;
     line-height: 1.6;
   }
-
+ 
   .section-label {
     display: flex;
     align-items: center;
     gap: 16px;
     padding: 48px 0 28px;
   }
-
+ 
   .section-label span {
     font-size: 12px;
     font-weight: 600;
@@ -120,21 +123,21 @@
     color: var(--text-tertiary);
     white-space: nowrap;
   }
-
+ 
   .section-label::after {
     content: '';
     flex: 1;
     height: 1px;
     background: var(--border);
   }
-
+ 
   .game-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 20px;
     padding-bottom: 80px;
   }
-
+ 
   .game-card {
     background: var(--surface);
     border-radius: 14px;
@@ -146,91 +149,51 @@
     color: inherit;
     display: block;
   }
-
+ 
   .game-card:hover {
     border-color: var(--border-hover);
     box-shadow: 0 8px 32px rgba(0,0,0,0.06);
     transform: translateY(-3px);
   }
-
+ 
   .game-thumb {
     width: 100%;
     aspect-ratio: 16/10;
-    background: linear-gradient(145deg, #F5F5F2, #EDEDEA);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    display: block;
     overflow: hidden;
   }
-
-  .game-thumb-icon { font-size: 44px; opacity: 0.5; }
-
-  .game-tag {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    font-size: 10px;
+ 
+  .game-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+ 
+  .game-info { padding: 18px 20px 22px; }
+ 
+  .game-tag-inline {
+    font-size: 11px;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--accent-warm);
-    background: var(--accent-warm-light);
-    padding: 4px 10px;
-    border-radius: 6px;
+    color: var(--text-tertiary);
+    margin-bottom: 6px;
   }
-
-  .game-info { padding: 18px 20px 22px; }
-
+ 
   .game-title {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: -0.3px;
     margin-bottom: 6px;
   }
-
+ 
   .game-desc {
     font-size: 13px;
     color: var(--text-secondary);
     line-height: 1.55;
-    margin-bottom: 16px;
   }
-
-  .play-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--accent);
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    font-size: 13px;
-    padding: 10px 22px;
-    border-radius: 100px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s;
-  }
-
-  .play-btn:hover { background: #444; transform: scale(1.03); }
-  .play-btn svg { width: 12px; height: 12px; fill: #fff; }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px 100px;
-  }
-
-  .empty-state p {
-    color: var(--text-tertiary);
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  .empty-state .hint {
-    margin-top: 8px;
-    font-size: 13px;
-  }
-
+ 
   footer {
     text-align: center;
     padding: 32px 0 40px;
@@ -239,7 +202,7 @@
     font-size: 13px;
     font-weight: 500;
   }
-
+ 
   @media (max-width: 600px) {
     .hero { padding: 50px 0 40px; }
     .hero-mascot { width: 90px; height: 90px; }
@@ -250,9 +213,9 @@
 </style>
 </head>
 <body>
-
+ 
 <div class="container">
-
+ 
   <nav>
     <a class="nav-brand" href="#">
       <svg class="nav-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -284,7 +247,7 @@
       <li><a href="#">About</a></li>
     </ul>
   </nav>
-
+ 
   <section class="hero">
     <svg class="hero-mascot" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
       <circle cx="100" cy="110" r="62" fill="#8B6914"/>
@@ -311,53 +274,41 @@
     <h1>Boofy Dog</h1>
     <p>A small indie studio making games you can play right in your browser. No downloads, no sign-ups.</p>
   </section>
-
+ 
   <div class="section-label"><span>Games</span></div>
-
-  <div class="empty-state">
-    <a href="shadow-fist.html" style="display:block;padding:0px;border:1px solid #E8E8E4;border-radius:12px;text-decoration:none;color:#1A1A1A;transition:border-color 0.2s">
-      <img src="shadow-fist-banner.svg" style="width:100%;max-height:300px;object-fit:contain;background:#151731;border-radius:12px 12px 0 0" alt="Shadow Fist">
-  <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9A9A9A;margin-bottom:4px">Fighting</div>
-  <div style="font-size:18px;font-weight:700;margin-bottom:6px">Shadow Fist</div>
-  <div style="font-size:14px;color:#6B6B6B">Fight through 10 stages with devastating combos. Jump + punch to ground slam!</div>
-</a>
-  </div>
-
-  <!--
-  =============================================
-  HOW TO ADD A GAME:
-  1. Delete the "empty-state" div above
-  2. Uncomment the "game-grid" div below
-  3. Copy a game-card block for each new game
-  4. Update the href, title, description & tag
-  5. Put each game in: games/your-game/index.html
-  =============================================
-
+ 
   <div class="game-grid">
-
-    <a class="game-card" href="games/your-game/index.html">
-      <div class="game-thumb">
-        <span class="game-tag">Genre</span>
-        <span class="game-thumb-icon">🎮</span>
+ 
+    <a class="game-card" href="shadow-fist.html">
+      <div class="game-thumb" style="background:#151731">
+        <img src="shadow-fist-banner.svg" alt="Shadow Fist" style="object-fit:contain">
       </div>
       <div class="game-info">
-        <div class="game-title">Game Title</div>
-        <div class="game-desc">A short description of your game goes here.</div>
-        <div class="play-btn">
-          <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-          Play
-        </div>
+        <div class="game-tag-inline">Fighting</div>
+        <div class="game-title">Shadow Fist</div>
+        <div class="game-desc">Fight through 10 stages with devastating combos. Jump + punch to ground slam!</div>
       </div>
     </a>
-
+ 
+    <a class="game-card" href="zero.html">
+      <div class="game-thumb" style="background:#FFFEFE">
+        <img src="zero-banner.svg" alt="Zero">
+      </div>
+      <div class="game-info">
+        <div class="game-tag-inline">Platformer</div>
+        <div class="game-title">Zero</div>
+        <div class="game-desc">A brutal precision platformer. Walljump, dodge saws, and race the clock to reach zero.</div>
+      </div>
+    </a>
+ 
   </div>
-  -->
-
+ 
 </div>
-
+ 
 <footer>
   <div class="container">&copy; 2026 Boofy Dog Studios</div>
 </footer>
-
+ 
 </body>
 </html>
+ 
